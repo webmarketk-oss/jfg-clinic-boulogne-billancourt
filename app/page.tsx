@@ -11,15 +11,14 @@ declare global {
 
 const LEAD_WEBHOOK_URL = process.env.NEXT_PUBLIC_LEAD_WEBHOOK_URL;
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-const CENTER_NAME = "JFG Clinic";
-const CITY_NAME = "Boulogne-Billancourt";
-const CENTER_DISPLAY = `${CENTER_NAME} ${CITY_NAME}`;
+const CENTER_NAME = process.env.NEXT_PUBLIC_CENTER_NAME || "Dépil Tech";
+const CITY_NAME = process.env.NEXT_PUBLIC_CITY_NAME || "Marseille 6";
 
 const zones = [
   "Aisselles",
   "Maillot",
-  "Demi-jambes",
   "Jambes complètes",
+  "Demi-jambes",
   "Bras",
   "Visage",
   "Dos / torse",
@@ -28,19 +27,9 @@ const zones = [
 
 const faq = [
   {
-    question: "L’offre à 99€ par mois comprend quoi ?",
+    question: "Le test est-il vraiment offert ?",
     answer:
-      "Aisselles, maillot et demi-jambes à 99€ par mois, pendant 10 mois. Places limitées, offre exclusive.",
-  },
-  {
-    question: "Le bilan et le test sont-ils vraiment offerts ?",
-    answer:
-      "Oui. Bilan et test laser offerts, sans engagement. Vous voyez si le protocole vous convient avant de vous lancer.",
-  },
-  {
-    question: "Y a-t-il un engagement ?",
-    answer:
-      "Non. Le bilan et le test sont offerts sans engagement. L’offre à 99€ par mois pendant 10 mois vous est détaillée pendant le rendez-vous.",
+      "Oui. Le test permet de vérifier la réaction de la peau avant de démarrer un protocole complet.",
   },
   {
     question: "Combien de séances faut-il prévoir ?",
@@ -48,14 +37,14 @@ const faq = [
       "Cela dépend de la zone, du type de peau et du poil. Le bilan sert justement à estimer le protocole adapté.",
   },
   {
-    question: "Puis-je traiter d’autres zones ?",
+    question: "Puis-je traiter plusieurs zones ?",
     answer:
-      "Oui. L’offre porte sur aisselles, maillot et demi-jambes. Vous pouvez aussi indiquer d’autres zones, on vous conseille pendant le bilan.",
+      "Oui, vous pouvez cocher plusieurs zones. L'équipe vous proposera ensuite l'offre la plus adaptée.",
   },
   {
-    question: "L’offre est-elle limitée ?",
+    question: "L'épilation définitive convient-elle à tout le monde ?",
     answer:
-      "Oui. Offre limitée et exclusive, le temps de l’opération.",
+      "Certaines situations demandent un avis préalable. Le bilan permet de vérifier les indications et contre-indications.",
   },
 ];
 
@@ -88,10 +77,9 @@ const beforeAfter = [
 ];
 
 const reviewFrames = [
-  { name: "Stéphanie Rodier", src: "/jfg-review-1.jpg" },
-  { name: "Pierre Farge", src: "/jfg-review-2.jpg" },
-  { name: "Joëlle Jouandane", src: "/jfg-review-3.jpg" },
-  { name: "Céline Clément", src: "/jfg-review-4.jpg" },
+  { name: "Melanie Sauze", src: "/review-melanie-sauze.jpg" },
+  { name: "Samuel Gomes", src: "/review-samuel-gomes.jpg" },
+  { name: "Kenza Kenza", src: "/review-kenza-kenza.jpg" },
 ];
 
 function track(eventName: string, params?: Record<string, unknown>) {
@@ -151,7 +139,7 @@ export default function Home() {
     track("PageView");
     track("ViewContent", {
       center: CITY_NAME,
-      content_name: "Tunnel épilation laser JFG Clinic Boulogne-Billancourt",
+      content_name: "Tunnel épilation définitive Dépil Tech",
     });
   }, []);
 
@@ -178,13 +166,12 @@ export default function Home() {
       phone: String(data.get("phone") ?? ""),
       email: String(data.get("email") ?? ""),
       message_opt_in: messageOptIn,
-      contact_opt_in: messageOptIn,
       zones: selectedZones,
       center: CITY_NAME,
-      center_display_name: CENTER_DISPLAY,
-      offer: "Aisselles + maillot + demi-jambes 99€/mois pendant 10 mois + bilan et test offerts sans engagement",
-      page: `Épilation laser ${CENTER_DISPLAY}`,
-      source: "jfg-clinic-boulogne-billancourt",
+      center_display_name: `${CENTER_NAME} ${CITY_NAME}`,
+      offer: "Bilan laser offert + test offert + jusqu'à -30%",
+      page: `Épilation définitive ${CENTER_NAME} ${CITY_NAME}`,
+      source: "depil-tech-marseille-6",
       submitted_at: new Date().toISOString(),
       page_url: typeof window !== "undefined" ? window.location.href : "",
       ...trackingParams,
@@ -199,8 +186,32 @@ export default function Home() {
           body: JSON.stringify(payload),
         });
       }
+
+      const nameParts = payload.full_name.trim().split(/\s+/).filter(Boolean);
+      const prenom = nameParts[0] ?? "";
+      const nom = nameParts.slice(1).join(" ");
+      try {
+        await fetch(
+          "https://www.bookeai.fr/api/leads?center=depil-tech-marseille-6-prefecture&source=landing",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              first_name: prenom,
+              last_name: nom,
+              email: payload.email,
+              phone: payload.phone,
+              offre: "Épilation laser Marseille 6",
+              commentaire: `Zones à traiter : ${selectedZones.join(", ") || "non précisé"}`,
+            }),
+          },
+        );
+      } catch {
+        // Bookea ne doit pas bloquer la demande Marseille 6.
+      }
+
       track("Lead", {
-        content_name: "Pack 99€/mois 10 mois",
+        content_name: "Bilan laser offert",
         center: CITY_NAME,
         zones: selectedZones.join(", "),
       });
@@ -212,21 +223,31 @@ export default function Home() {
 
   return (
     <main className="site-shell">
-      <header className="site-header" aria-label="JFG Clinic">
-        <img alt="JFG Clinic" className="brand-logo" src="/jfg-logo-2026.jpg" />
+      <header className="site-header" aria-label="Dépil Tech">
+        <img
+          alt="Dépil Tech"
+          className="brand-logo"
+          src="/depil-tech-logo.png"
+        />
       </header>
 
       <section className="hero-section" aria-labelledby="page-title">
         <div className="hero-copy">
-          <p className="eyebrow">Offre limitée · Exclusive</p>
-          <h1 id="page-title">Aisselles + Maillot + Demi-jambes 99€ / mois</h1>
-          <p className="hero-duration">pendant 10 mois</p>
-          <p className="hero-subtitle">Bilan et test offert sans engagement</p>
+          <p className="eyebrow">Jusqu&apos;à -30% cette semaine</p>
+          <h1 id="page-title">2 étapes pour demander votre offre</h1>
+          <p className="hero-subtitle">Test offert avant de commencer</p>
+          <p className="hero-city">Marseille 6</p>
+          <div className="trust-row" aria-label="Éléments de confiance">
+            <span>Test offert</span>
+            <span>Jusqu&apos;à -30%</span>
+            <span>Bilan personnalisé</span>
+            <span>Réponse rapide</span>
+          </div>
         </div>
 
         <div
           className="before-after-carousel"
-          aria-label="Avant après épilation laser"
+          aria-label="Avant après épilation définitive"
         >
           <div className="before-after-track">
             {[...beforeAfter, ...beforeAfter].map((item, index) => (
@@ -236,7 +257,7 @@ export default function Home() {
               >
                 <div className="photo-pair">
                   <img
-                    alt={`Avant après épilation laser - ${item.area}`}
+                    alt={`Avant après épilation définitive - ${item.area}`}
                     decoding="async"
                     fetchPriority={index === 0 ? "high" : "auto"}
                     height={465}
@@ -258,16 +279,15 @@ export default function Home() {
       {step === "intro" && (
         <section className="quiz-panel" aria-labelledby="zone-question">
           <div>
-            <p className="offer-ready">
-              Votre offre 99€ / mois est presque prête
-            </p>
+            <p className="offer-ready">Votre offre est presque prête</p>
             <p className="step-label">
-              2 étapes pour réserver · offre limitée exclusive
+              2 étapes pour demander votre séance TEST OFFERTE et votre offre
+              jusqu&apos;à -30%
             </p>
             <h2 id="zone-question">Quelle(s) zone(s) souhaitez-vous traiter ?</h2>
             <p className="helper-text">
-              Pack aisselles, maillot et demi-jambes. Cochez aussi d’autres
-              zones si besoin.
+              Vous pouvez cocher plusieurs zones si vous souhaitez une offre
+              groupée.
             </p>
           </div>
 
@@ -297,7 +317,7 @@ export default function Home() {
             onClick={openForm}
             type="button"
           >
-            Profitez de l&apos;offre
+            Voir mon offre
           </button>
         </section>
       )}
@@ -311,10 +331,11 @@ export default function Home() {
           >
             Retour
           </button>
-          <p className="offer-ready">Dernière étape pour l’offre 99€ / mois</p>
-          <p className="step-label">On vous rappelle pour réserver</p>
+          <p className="offer-ready">Votre offre est presque prête</p>
+          <p className="step-label">Dernière étape</p>
           <h2 id="form-title">
-            Vos coordonnées pour aisselles + maillot + demi-jambes à 99€ / mois.
+            Remplissez vos coordonnées pour accéder à votre offre jusqu&apos;à
+            -30%.
           </h2>
           <p className="helper-text">
             Zone(s) à traiter : {selectedZones.join(", ")}
@@ -336,7 +357,7 @@ export default function Home() {
               />
             </label>
             <label>
-              Email (optionnel)
+              Email
               <input
                 inputMode="email"
                 name="email"
@@ -347,10 +368,8 @@ export default function Home() {
 
             <fieldset className="message-consent">
               <legend>
-                Acceptez-vous d’être contacté(e) par téléphone et par WhatsApp
-                par {CENTER_DISPLAY} concernant votre demande d’informations
-                sur nos offres ? Votre consentement peut être retiré à tout
-                moment.
+                Pouvons-nous vous contacter par message pour valider votre
+                offre ?
               </legend>
               <label>
                 <input
@@ -379,7 +398,7 @@ export default function Home() {
               disabled={isSubmitting}
               type="submit"
             >
-              {isSubmitting ? "Envoi en cours..." : "Profitez de l'offre"}
+              {isSubmitting ? "Envoi en cours..." : "Je profite de mon offre"}
             </button>
           </form>
         </section>
@@ -390,10 +409,9 @@ export default function Home() {
           <p className="step-label">Demande reçue</p>
           <h2 id="thanks-title">Merci, votre demande est bien prise en compte.</h2>
           <p>
-            L&apos;équipe {CENTER_DISPLAY} vous rappelle rapidement pour
-            confirmer votre pack aisselles + maillot + demi-jambes à 99€ par
-            mois pendant 10 mois, ainsi que votre bilan et test offerts sans
-            engagement.
+            Une personne de l&apos;équipe Dépil Tech à Marseille 6 vous
+            contactera rapidement pour valider votre offre et confirmer votre
+            créneau.
           </p>
         </section>
       )}
@@ -431,3 +449,4 @@ export default function Home() {
     </main>
   );
 }
+
