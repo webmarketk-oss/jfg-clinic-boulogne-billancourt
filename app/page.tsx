@@ -254,47 +254,29 @@ export default function Home() {
     }
   }
 
+  const tickerLine = `${tickerItems.join("   •   ")}   •   `;
+
   return (
     <>
-      <style>{`
-        .bn-ticker {
-          overflow: hidden;
-          background: #ff3030;
-          color: #ffffff;
-          padding: 11px 0;
-          font-size: 0.78rem;
-          font-weight: 900;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-        .bn-ticker-track {
-          width: max-content;
-          display: flex;
-          gap: 28px;
-          animation: bnTickerScroll 22s linear infinite;
-        }
-        .bn-ticker-track span {
-          white-space: nowrap;
-        }
-        .bn-ticker-track span::after {
-          content: " • ";
-          margin-left: 28px;
-          opacity: 0.75;
-        }
-        @keyframes bnTickerScroll {
-          from { transform: translateX(0); }
-          to { transform: translateX(-33.333%); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .bn-ticker-track { animation: none; }
-        }
-      `}</style>
-      <div className="bn-ticker" aria-label="Black November">
-        <div className="bn-ticker-track">
-          {[...tickerItems, ...tickerItems, ...tickerItems].map((item, index) => (
-            <span key={`${item}-${index}`}>{item}</span>
-          ))}
-        </div>
+      <div
+        aria-label="Black November"
+        style={{
+          overflow: "hidden",
+          background: "#ff3030",
+          color: "#ffffff",
+          padding: "12px 0",
+          fontSize: "0.8rem",
+          fontWeight: 900,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          width: "100%",
+        }}
+      >
+        <marquee scrollAmount={7}>
+          {tickerLine}
+          {tickerLine}
+          {tickerLine}
+        </marquee>
       </div>
 
       <main className="site-shell">
@@ -518,6 +500,7 @@ export default function Home() {
     </>
   );
 }
+
 
 
 
