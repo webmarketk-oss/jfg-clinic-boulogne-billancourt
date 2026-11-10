@@ -1,4 +1,5 @@
 "use client";
+/* JFG CLINIC BOULOGNE-BILLANCOURT — Easy Beauté + Bookea — PAS MARSEILLE 6 */
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
@@ -218,6 +219,16 @@ export default function Home() {
           commentaire: `Zones à traiter : ${selectedZones.join(", ") || "non précisé"} | Contact tel/WhatsApp : ${messageOptIn}`,
         },
       );
+      postJson("/api/easy-beaute", {
+        firstname: prenom,
+        lastname: nom,
+        phone: payload.phone,
+        email: payload.email,
+        prestation: payload.offer,
+        comment: `Landing JFG Clinic Boulogne — pack 99€/mois 10 mois — zones : ${selectedZones.join(", ") || "non précisé"} | Contact message : ${messageOptIn}`,
+        utm_source: payload.utm_source,
+        utm_medium: payload.utm_medium,
+      });
 
       track("Lead", {
         content_name: "Pack 99€/mois 10 mois",
@@ -451,6 +462,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 
 
