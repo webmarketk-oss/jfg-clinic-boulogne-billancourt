@@ -272,11 +272,22 @@ export default function Home() {
           width: "100%",
         }}
       >
-        <marquee scrollAmount={7}>
-          {tickerLine}
-          {tickerLine}
-          {tickerLine}
-        </marquee>
+        <style
+          dangerouslySetInnerHTML={{
+            __html:
+              "@keyframes jfgBnScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}",
+          }}
+        />
+        <div
+          style={{
+            display: "inline-block",
+            whiteSpace: "nowrap",
+            animation: "jfgBnScroll 22s linear infinite",
+          }}
+        >
+          <span>{tickerLine}</span>
+          <span>{tickerLine}</span>
+        </div>
       </div>
 
       <main className="site-shell">
