@@ -256,8 +256,41 @@ export default function Home() {
 
   return (
     <>
-      <div className="ticker" aria-label="Black November">
-        <div className="ticker-track">
+      <style>{`
+        .bn-ticker {
+          overflow: hidden;
+          background: #ff3030;
+          color: #ffffff;
+          padding: 11px 0;
+          font-size: 0.78rem;
+          font-weight: 900;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .bn-ticker-track {
+          width: max-content;
+          display: flex;
+          gap: 28px;
+          animation: bnTickerScroll 22s linear infinite;
+        }
+        .bn-ticker-track span {
+          white-space: nowrap;
+        }
+        .bn-ticker-track span::after {
+          content: " • ";
+          margin-left: 28px;
+          opacity: 0.75;
+        }
+        @keyframes bnTickerScroll {
+          from { transform: translateX(0); }
+          to { transform: translateX(-33.333%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .bn-ticker-track { animation: none; }
+        }
+      `}</style>
+      <div className="bn-ticker" aria-label="Black November">
+        <div className="bn-ticker-track">
           {[...tickerItems, ...tickerItems, ...tickerItems].map((item, index) => (
             <span key={`${item}-${index}`}>{item}</span>
           ))}
@@ -444,9 +477,9 @@ export default function Home() {
           <h2 id="thanks-title">Merci, votre demande est bien prise en compte.</h2>
           <p>
             L&apos;équipe {CENTER_DISPLAY} vous rappelle rapidement pour
-            confirmer votre pack aisselles + maillot + demi-jambes à 99€ par
-            mois pendant 10 mois, ainsi que votre bilan et test offerts sans
-            engagement.
+            confirmer Black November : jusqu&apos;à -50 % sur nos forfaits, et
+            le pack aisselles + maillot + demi-jambes à 99€ par mois pendant
+            10 mois, bilan et test offerts.
           </p>
         </section>
       )}
