@@ -15,6 +15,13 @@ const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const CENTER_NAME = "JFG Clinic";
 const CITY_NAME = "Boulogne-Billancourt";
 const CENTER_DISPLAY = `${CENTER_NAME} ${CITY_NAME}`;
+const tickerItems = [
+  "Black November",
+  "Jusqu'à -50 % sur nos forfaits",
+  "Pack 99€ / mois",
+  "Bilan et test offerts",
+  "Offre limitée",
+];
 
 const zones = [
   "Aisselles",
@@ -28,6 +35,11 @@ const zones = [
 ];
 
 const faq = [
+  {
+    question: "C’est quoi Black November ?",
+    answer:
+      "Jusqu’à -50 % sur nos forfaits laser, en plus du pack aisselles + maillot + demi-jambes à 99€ par mois pendant 10 mois. Offre limitée.",
+  },
   {
     question: "L’offre à 99€ par mois comprend quoi ?",
     answer:
@@ -192,7 +204,7 @@ export default function Home() {
       zones: selectedZones,
       center: CITY_NAME,
       center_display_name: CENTER_DISPLAY,
-      offer: "Aisselles + maillot + demi-jambes 99€/mois pendant 10 mois + bilan et test offerts sans engagement",
+      offer: "Black November — jusqu'à -50 % sur nos forfaits + aisselles + maillot + demi-jambes 99€/mois 10 mois + bilan et test offerts",
       page: `Épilation laser ${CENTER_DISPLAY}`,
       source: "jfg-clinic-boulogne-billancourt",
       submitted_at: new Date().toISOString(),
@@ -215,8 +227,9 @@ export default function Home() {
           last_name: nom,
           email: payload.email,
           phone: payload.phone,
-          offre: "Aisselles + maillot + demi-jambes 99€/mois JFG Clinic Boulogne-Billancourt",
-          commentaire: `Zones à traiter : ${selectedZones.join(", ") || "non précisé"} | Contact tel/WhatsApp : ${messageOptIn}`,
+          offre: "Black November -50 + pack 99€",
+          axe: "Laser",
+          commentaire: `Black November — jusqu'à -50 % sur nos forfaits + pack 99€/mois 10 mois — zones : ${selectedZones.join(", ") || "non précisé"} | Contact tel/WhatsApp : ${messageOptIn}`,
         },
       );
       postJson("/api/easy-beaute", {
@@ -225,7 +238,7 @@ export default function Home() {
         phone: payload.phone,
         email: payload.email,
         prestation: payload.offer,
-        comment: `Landing JFG Clinic Boulogne — pack 99€/mois 10 mois — zones : ${selectedZones.join(", ") || "non précisé"} | Contact message : ${messageOptIn}`,
+        comment: `Black November JFG Clinic Boulogne — jusqu'à -50 % sur nos forfaits + pack 99€/mois 10 mois — zones : ${selectedZones.join(", ") || "non précisé"} | Contact message : ${messageOptIn}`,
         utm_source: payload.utm_source,
         utm_medium: payload.utm_medium,
       });
@@ -242,14 +255,23 @@ export default function Home() {
   }
 
   return (
-    <main className="site-shell">
+    <>
+      <div className="ticker" aria-label="Black November">
+        <div className="ticker-track">
+          {[...tickerItems, ...tickerItems, ...tickerItems].map((item, index) => (
+            <span key={`${item}-${index}`}>{item}</span>
+          ))}
+        </div>
+      </div>
+
+      <main className="site-shell">
       <header className="site-header" aria-label="JFG Clinic">
         <img alt="JFG Clinic" className="brand-logo" src="/jfg-logo-2026.jpg" />
       </header>
 
       <section className="hero-section" aria-labelledby="page-title">
         <div className="hero-copy">
-          <p className="eyebrow">Offre limitée · Exclusive</p>
+          <p className="eyebrow">Black November · jusqu&apos;à -50 % sur nos forfaits</p>
           <h1 id="page-title">Aisselles + Maillot + Demi-jambes 99€ / mois</h1>
           <p className="hero-duration">pendant 10 mois</p>
           <p className="hero-subtitle">Bilan et test offert sans engagement</p>
@@ -290,10 +312,10 @@ export default function Home() {
         <section className="quiz-panel" aria-labelledby="zone-question">
           <div>
             <p className="offer-ready">
-              Votre offre 99€ / mois est presque prête
+              Black November · jusqu&apos;à -50 % sur nos forfaits
             </p>
             <p className="step-label">
-              2 étapes pour réserver · offre limitée exclusive
+              2 étapes pour bloquer le pack 99€ / mois et jusqu&apos;à -50 %
             </p>
             <h2 id="zone-question">Quelle(s) zone(s) souhaitez-vous traiter ?</h2>
             <p className="helper-text">
@@ -342,7 +364,7 @@ export default function Home() {
           >
             Retour
           </button>
-          <p className="offer-ready">Dernière étape pour l’offre 99€ / mois</p>
+          <p className="offer-ready">Dernière étape · Black November</p>
           <p className="step-label">On vous rappelle pour réserver</p>
           <h2 id="form-title">
             Vos coordonnées pour aisselles + maillot + demi-jambes à 99€ / mois.
@@ -460,8 +482,10 @@ export default function Home() {
         </div>
       </section>
     </main>
+    </>
   );
 }
+
 
 
 
